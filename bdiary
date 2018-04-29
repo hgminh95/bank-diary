@@ -3,8 +3,9 @@
 import cmd
 
 from bank_diary.parser.dbs import DbsParser
-from bank_diary.classifier import *
 from bank_diary.common.db import SQLiteDatabase
+
+from bank_diary.defaults import classifier
 
 
 class DiaryShell(cmd.Cmd):
