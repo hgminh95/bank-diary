@@ -4,6 +4,8 @@ import cmd
 
 from bank_diary.parser.dbs import DbsParser
 from bank_diary.common.db import SQLiteDatabase
+import bank_diary.common.stats as stats
+import bank_diary.common.syntax as syntax
 
 from bank_diary.defaults import classifier
 
@@ -54,6 +56,27 @@ class DiaryShell(cmd.Cmd):
 
     def do_c(self, args):
         self.do_count(args)
+
+    def do_get(self, args):
+        args = args.split(' ')
+
+        syntax.expect_str(args[0])
+        syntax.expect_str(args[1], 'by')
+        syntax.expect_str(args[2])
+        if len(args) == 3:
+            args.extend(['at', ''])
+        syntax.expect_str(args[3], 'at')
+        syntax.expect_str(args[4])
+
+        target = args[0]
+        group_by = args[2]
+        period = args[4]
+
+        records = self.db.select_period(period)
+        for rec in records:
+            rec.category = classifier.classify(rec)
+
+        print(stats.aggregate(records, target, group_by))
 
     def do_exit(self, args):
         return True

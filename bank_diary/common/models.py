@@ -20,6 +20,11 @@ class Transaction(object):
         self.amount = get_array_elem(records, 3)
         self.client_ref = get_array_elem(records, 4)
 
+        # derived attribute
+        self.category = 'unknown'
+        self.year = self.date.year
+        self.month = self.date.month
+
     def __str__(self):
         return "<Transaction,{},{},{},{},{}>".format(
             self.date.strftime("%Y%m%d"),

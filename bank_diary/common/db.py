@@ -44,7 +44,7 @@ class SQLiteDatabase(object):
         c.close()
 
     def select_all(self):
-        return _select("SELECT * FROM trans")
+        return self._select("SELECT * FROM trans")
 
     def select_period(self, prefix):
         return self._select("SELECT * FROM trans WHERE date LIKE '{}%'".format(prefix))
