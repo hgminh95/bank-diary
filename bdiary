@@ -1,1 +1,68 @@
 #!/usr/bin/env python3
+
+import cmd
+
+from bank_diary.parser.dbs import DbsParser
+from bank_diary.classifier import *
+from bank_diary.common.db import SQLiteDatabase
+
+
+class DiaryShell(cmd.Cmd):
+    intro = 'Welcome to bdiary shell. Type help or ? to list commands.\n'
+    prompt = '(diary) '
+
+    def __init__(self):
+        super().__init__()
+
+        self.db = SQLiteDatabase()
+
+    def do_load(self, args):
+        db_path = args
+        
+        self.db = SQLiteDatabase(db_path)
+
+    def do_import(self, args):
+        csv_file = args
+
+        self.db.insert_bulk([t for t in DbsParser().parse_file(csv_file)])
+
+    def do_i(self, args):
+        self.do_import(args)
+
+    def do_list(self, args):
+        prefix = args
+        if prefix == 'all':
+            prefix = ''
+
+        records = self.db.select_period(prefix)
+        print("Found {} transactions.".format(len(records)))
+
+        for rec in records:
+            print("> {}".format(rec))
+
+    def do_l(self, args):
+        self.do_list(args)
+
+    def do_count(self, args):
+        prefix = args
+        if prefix == 'all':
+            prefix = ''
+
+        records = self.db.select_period(prefix)
+        print("Found {} transactions.".format(len(records)))
+
+    def do_c(self, args):
+        self.do_count(args)
+
+    def do_exit(self, args):
+        return True
+
+    def do_quit(self, args):
+        return True
+
+    def do_q(self, args):
+        return True
+
+
+if __name__ == '__main__':
+    DiaryShell().cmdloop()
