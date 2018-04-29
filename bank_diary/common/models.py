@@ -8,7 +8,7 @@ class Transaction:
         self.client_ref = None
 
     def __str__(self):
-        return "{} {} {} {} {}".format(
+        return "<Transaction,{},{},{},{},{}>".format(
             self.date.strftime("%Y%m%d"),
             self.statement_code,
             self.reference,
