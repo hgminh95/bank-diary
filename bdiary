@@ -20,19 +20,31 @@ class DiaryShell(cmd.Cmd):
         self.db = SQLiteDatabase()
 
     def do_load(self, args):
-        db_path = args
-        
-        self.db = SQLiteDatabase(db_path)
+        'specify path to database'
+        path = args
+        if path.endswith('.py'):
+            import importlib.util
+            spec = importlib.util.spec_from_file_location('custom', path)
+            custom = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(custom)
+
+            global classifier
+            classifier = custom.classifier
+        else:
+            self.db = SQLiteDatabase(db_path)
 
     def do_import(self, args):
+        'import data'
         csv_file = args
 
         self.db.insert_bulk([t for t in DbsParser().parse_file(csv_file)])
 
     def do_i(self, args):
+        'import data'
         self.do_import(args)
 
     def do_list(self, args):
+        'list all transaction in a specific period'
         prefix = args
         if prefix == 'all':
             prefix = ''
@@ -44,9 +56,11 @@ class DiaryShell(cmd.Cmd):
             print("> {}".format(rec))
 
     def do_l(self, args):
+        'list all transaction in a specific period'
         self.do_list(args)
 
     def do_count(self, args):
+        'count all transaction in a specific period'
         prefix = args
         if prefix == 'all':
             prefix = ''
@@ -55,9 +69,12 @@ class DiaryShell(cmd.Cmd):
         print("Found {} transactions.".format(len(records)))
 
     def do_c(self, args):
+        'count all transaction in a specific period'
         self.do_count(args)
 
     def do_get(self, args):
+        '''Syntax: get <target> by <group_by> [at <period>]
+        '''
         args = args.split(' ')
 
         syntax.expect_str(args[0])
@@ -79,12 +96,15 @@ class DiaryShell(cmd.Cmd):
         print(stats.aggregate(records, target, group_by))
 
     def do_exit(self, args):
+        'exit'
         return True
 
     def do_quit(self, args):
+        'exit'
         return True
 
     def do_q(self, args):
+        'exit'
         return True
 
 
