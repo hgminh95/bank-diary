@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import os
 import cmd
 
 from bank_diary.parser.dbs import DbsParser
@@ -23,13 +24,17 @@ class DiaryShell(cmd.Cmd):
         'specify path to database'
         path = args
         if path.endswith('.py'):
-            import importlib.util
-            spec = importlib.util.spec_from_file_location('custom', path)
-            custom = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(custom)
+            try:
+                import importlib.util
+                spec = importlib.util.spec_from_file_location('custom', path)
+                custom = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(custom)
 
-            global classifier
-            classifier = custom.classifier
+                global classifier
+                classifier = custom.classifier
+            except Exception as e:
+                print("<error> Failed to load custom classifier at", path)
+                print("")
         else:
             self.db = SQLiteDatabase(db_path)
 
@@ -109,4 +114,13 @@ class DiaryShell(cmd.Cmd):
 
 
 if __name__ == '__main__':
-    DiaryShell().cmdloop()
+    shell = DiaryShell()
+
+    config_path = os.path.expanduser("~/.bdiary/config")
+    if os.path.exists(config_path) and os.path.isfile(config_path):
+        print('Load config from', config_path)
+        with open(config_path, 'rt') as f:
+            for line in f:
+                shell.onecmd(line)
+
+    shell.cmdloop()
