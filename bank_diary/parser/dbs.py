@@ -29,14 +29,13 @@ class DbsParser(BaseParser):
                 yield self.parse_line(tokens)
 
     def parse_line(self, tokens):
-        t = Transaction()
-        t.date = datetime.strptime(tokens[0], "%d %b %Y")
-        t.statement_code = tokens[2]
-        t.reference = tokens[3]
-        if tokens[4] != " ":
-            t.amount = float(tokens[4])
-        else:
-            t.amount = 0
-        t.client_ref = tokens[6]
+        t = Transaction(
+            "",
+            datetime.strptime(tokens[0], "%d %b %Y"),
+            tokens[2],
+            tokens[3],
+            - float(tokens[4]) if tokens[4] != " " else float(tokens[5]),
+            tokens[6]
+        )
 
         return t

@@ -36,7 +36,7 @@ class DiaryShell(cmd.Cmd):
                 print("<error> Failed to load custom classifier at", path)
                 print("")
         else:
-            self.db = SQLiteDatabase(db_path)
+            self.db = SQLiteDatabase(path)
 
     def do_import(self, args):
         'import data'

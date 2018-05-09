@@ -18,6 +18,7 @@ class SQLiteDatabase(object):
 
         c.execute('''
             CREATE TABLE IF NOT EXISTS trans(
+                id text PRIMARY KEY,
                 date text,
                 statement_code text,
                 ref text,
@@ -63,7 +64,7 @@ class SQLiteDatabase(object):
         if len(transactions) == 0:
             return ""
 
-        cmd = "INSERT INTO trans VALUES"
+        cmd = "REPLACE INTO trans VALUES"
         cmd += self._values_of(transactions[0])
 
         for trans in transactions[1:]:
@@ -72,7 +73,8 @@ class SQLiteDatabase(object):
         return cmd
 
     def _values_of(self, trans):
-        return "('{}', '{}', '{}', {}, '{}')".format(
+        return "('{}', '{}', '{}', '{}', {}, '{}')".format(
+            trans.id,
             trans.date.strftime('%Y%m%d'),
             self._escape(trans.statement_code),
             self._escape(trans.reference),
