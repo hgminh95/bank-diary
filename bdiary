@@ -18,7 +18,7 @@ class DiaryShell(cmd.Cmd):
     def __init__(self):
         super().__init__()
 
-        self.db = SQLiteDatabase()
+        self.db = SQLiteDatabase(os.path.expanduser("~/.bdiary/db"))
 
     def do_load(self, args):
         'specify path to database'
