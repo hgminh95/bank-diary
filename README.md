@@ -24,11 +24,15 @@ Found 2 transactions.
 > <Transaction, xxx, yyy, zzz, ...>
 > <Transaction, xxx, yyy, zzz, ...>
 
-(diary) get sum by category
-{ 'food': xxx, 'housing': yyy, 'transport': zzz }
-
 (diary) get sum by category at 201804
-{ 'food': xxx, 'housing': yyy, 'transport': zzz }
+food: xxx
+housing: yyy
+transport: zzz
+
+(diary) get sum by year, month
+2018-03: xxx
+2018-04: yyy
+2018-05: zzz
 ```
 
 ## Customization
