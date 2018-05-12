@@ -80,19 +80,15 @@ class DiaryShell(cmd.Cmd):
     def do_get(self, args):
         '''Syntax: get <target> by <group_by> [at <period>]
         '''
-        args = args.split(' ')
+        args = syntax.Tokenizer().tokenize(args)
+        args = ['get'] + args
 
-        syntax.expect_str(args[0])
-        syntax.expect_str(args[1], 'by')
-        syntax.expect_str(args[2])
-        if len(args) == 3:
-            args.extend(['at', ''])
-        syntax.expect_str(args[3], 'at')
-        syntax.expect_str(args[4])
+        ok, res = syntax.Parser().parse_line(args)
+        if not ok:
+            print("Syntax Error:", res)
+            return
 
-        target = args[0]
-        group_by = args[2]
-        period = args[4]
+        _, (target, group_by, period) = res
 
         records = self.db.select_period(period)
         for rec in records:

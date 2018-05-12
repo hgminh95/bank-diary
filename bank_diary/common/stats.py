@@ -8,22 +8,25 @@ def getAggFunc(name):
     }.get(name, None)
 
 
-def aggregate(recs, target='sum', group_by='category'):
+def aggregate(recs, target='sum', group_by=['category']):
     sets = defaultdict(lambda: [])
 
     for rec in recs:
-        if hasattr(rec, group_by):
-            key = getattr(rec, group_by)
-        else:
-            raise Exception("unknown attribute: '{}'".format(group_by))
-        sets[key].append(rec)
+        key = ""
+        for elem in group_by:
+            if hasattr(rec, elem):
+                key += "-{}".format(getattr(rec, elem))
+            else:
+                raise Exception("unknown attribute: '{}'".format(group_by))
+
+        sets[key[1:]].append(rec)
 
     func = getAggFunc(target)
     if func is None:
         raise Exception("unknown aggregate function: '{}'".format(target))
 
-    res = {}
+    res = ""
     for key, recs in sets.items():
-        res[key] = func(recs)
+        res += "{}: {:.2f}\n".format(key, func(recs))
 
     return res
