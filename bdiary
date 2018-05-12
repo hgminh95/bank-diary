@@ -19,11 +19,17 @@ class DiaryShell(cmd.Cmd):
         super().__init__()
 
         self.db = SQLiteDatabase(os.path.expanduser("~/.bdiary/db"))
+        self.classifier_path = ''
 
     def do_load(self, args):
         'specify path to database'
         path = args
+
+        if len(path) == 0:
+            return
+
         if path.endswith('.py'):
+            self.classifier_path = path
             try:
                 import importlib.util
                 spec = importlib.util.spec_from_file_location('custom', path)
@@ -38,6 +44,9 @@ class DiaryShell(cmd.Cmd):
         else:
             self.db = SQLiteDatabase(path)
 
+    def do_reload(self, args):
+        self.do_load(self.classifier_path)
+
     def do_import(self, args):
         'import data'
         csv_file = args
@@ -50,14 +59,32 @@ class DiaryShell(cmd.Cmd):
 
     def do_list(self, args):
         'list all transaction in a specific period'
-        prefix = args
-        if prefix == 'all':
-            prefix = ''
+        args = syntax.Tokenizer().tokenize(args)
+        args = ['list'] + args
 
-        records = self.db.select_period(prefix)
-        print("Found {} transactions.".format(len(records)))
+        ok, res = syntax.Parser().parse_line(args)
+        if not ok:
+            print("Syntax Error:", res)
+            return
 
+        _, (conds, period) = res
+        print(res)
+
+        records = self.db.select_period(period)
+        selected = []
         for rec in records:
+            rec.category = classifier.classify(rec)
+            ok = True
+            for field, value in conds:
+                if getattr(rec, field) != value:
+                    ok = False
+                    break
+            if ok:
+                selected.append(rec)
+
+        print("Found {} transactions.".format(len(selected)))
+
+        for rec in selected:
             print("> {}".format(rec))
 
     def do_l(self, args):

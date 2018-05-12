@@ -5,7 +5,8 @@ class Tokenizer:
 
     TOKEN_REGEXS = '|'.join([
         '[A-Za-z0-9]+',
-        ','
+        ',',
+        '='
     ])
 
     def tokenize(self, line):
@@ -22,8 +23,27 @@ class Parser:
             cmd = self.next_str()
             if cmd == 'get':
                 return True, self.parse_get_command()
+            elif cmd == 'list':
+                return True, self.parse_list_command()
         except Exception as e:
             return False, e
+
+    def parse_list_command(self):
+        period = ''
+        conds = []
+        while True:
+            if self.peek() is None:
+                break
+            keyword = self.next_str()
+
+            if keyword == 'at':
+                period = self.next_str()
+            elif keyword == 'where':
+                conds = self.parse_list_cond()
+            else:
+                raise Exception('unknown keyword in list: "{}"'.format(keyword))
+
+        return "LIST", (conds, period)
 
     def parse_get_command(self):
         target = self.next_str()
@@ -40,6 +60,19 @@ class Parser:
         res = []
         while True:
             res.append(self.next_str())
+            if self.peek() != ',':
+                break
+            else:
+                self.pos += 1
+        return res
+
+    def parse_list_cond(self):
+        res = []
+        while True:
+            field = self.next_str()
+            self.expect_str('=')
+            value = self.next_str()
+            res.append((field, value))
             if self.peek() != ',':
                 break
             else:

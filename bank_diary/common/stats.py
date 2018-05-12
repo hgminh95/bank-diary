@@ -4,6 +4,8 @@ from collections import defaultdict
 def getAggFunc(name):
     return {
         'sum': lambda l: sum([r.amount for r in l]),
+        'income': lambda l: sum([r.amount if r.amount > 0 else 0 for r in l]),
+        'expense': lambda l: sum([-r.amount if r.amount < 0 else 0 for r in l]),
         'count': lambda l: len(l)
     }.get(name, None)
 
