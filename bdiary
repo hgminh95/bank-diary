@@ -22,7 +22,11 @@ class DiaryShell(cmd.Cmd):
         self.classifier_path = ''
 
     def do_load(self, args):
-        'specify path to database'
+        """load database or custom classifier
+
+        Syntax: load <path-to-entity>
+        where entity can be either database file or custom classifier
+        """
         path = args
 
         if len(path) == 0:
@@ -48,17 +52,22 @@ class DiaryShell(cmd.Cmd):
         self.do_load(self.classifier_path)
 
     def do_import(self, args):
-        'import data'
+        """Import data from csv file"""
         csv_file = args
 
         self.db.insert_bulk([t for t in DbsParser().parse_file(csv_file)])
 
     def do_i(self, args):
-        'import data'
+        """Same as import"""
         self.do_import(args)
 
     def do_list(self, args):
-        'list all transaction in a specific period'
+        """List transactions
+
+        Syntax: list [where <cond>[,<cond>]+] [at <period>]
+        Example:
+            list where category=housing at 2018
+        """
         args = syntax.Tokenizer().tokenize(args)
 
         ok, res = syntax.Parser().parse_line('list', *args)
@@ -76,11 +85,16 @@ class DiaryShell(cmd.Cmd):
             print("> {}".format(rec))
 
     def do_l(self, args):
-        'list all transaction in a specific period'
+        """Same as list"""
         self.do_list(args)
 
     def do_count(self, args):
-        'count all transaction in a specific period'
+        """Count transactions
+
+        Syntax: count [where <cond>[,<cond>]+] [at <period>]
+        Example:
+            count where category=housing at 2018
+        """
         args = syntax.Tokenizer().tokenize(args)
 
         ok, res = syntax.Parser().parse_line('list', *args)
@@ -94,12 +108,16 @@ class DiaryShell(cmd.Cmd):
         print("Found {} transactions.".format(len(recs)))
 
     def do_c(self, args):
-        'count all transaction in a specific period'
+        """Same as count"""
         self.do_count(args)
 
     def do_get(self, args):
-        '''Syntax: get <target> by <group_by> [at <period>]
-        '''
+        """Aggregate information
+
+        Syntax: get <target> by <group_by> [at <period>]
+        Example:
+            get sum by year, month
+        """
         args = syntax.Tokenizer().tokenize(args)
         args = ['get'] + args
 
@@ -117,15 +135,14 @@ class DiaryShell(cmd.Cmd):
         print(stats.aggregate(records, target, group_by))
 
     def do_exit(self, args):
-        'exit'
+        """Quit"""
         return True
 
     def do_quit(self, args):
-        'exit'
+        """Exit"""
         return True
 
     def do_q(self, args):
-        'exit'
         return True
 
     def find_records(self, conds, period):
