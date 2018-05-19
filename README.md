@@ -7,7 +7,7 @@
 ## Install
 
 ```
-$ python3 setup.py
+$ python3 setup.py install
 ```
 
 ## Usage
@@ -19,7 +19,7 @@ Welcome to bdiary shell. Type help or ? to list commands.
 (diary) import report.csv
 Import 256 new transactions.
 
-(diary) list 201804
+(diary) list where category=food at 201804
 Found 2 transactions.
 > <Transaction, xxx, yyy, zzz, ...>
 > <Transaction, xxx, yyy, zzz, ...>
