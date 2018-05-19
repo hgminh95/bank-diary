@@ -15,7 +15,7 @@ class Tokenizer:
 
 class Parser:
 
-    def parse_line(self, tokens):
+    def parse_line(self, *tokens):
         self.tokens = tokens
         self.pos = 0
 

@@ -60,31 +60,19 @@ class DiaryShell(cmd.Cmd):
     def do_list(self, args):
         'list all transaction in a specific period'
         args = syntax.Tokenizer().tokenize(args)
-        args = ['list'] + args
 
-        ok, res = syntax.Parser().parse_line(args)
+        ok, res = syntax.Parser().parse_line('list', *args)
         if not ok:
             print("Syntax Error:", res)
             return
 
         _, (conds, period) = res
-        print(res)
 
-        records = self.db.select_period(period)
-        selected = []
-        for rec in records:
-            rec.category = classifier.classify(rec)
-            ok = True
-            for field, value in conds:
-                if getattr(rec, field) != value:
-                    ok = False
-                    break
-            if ok:
-                selected.append(rec)
+        recs = self.find_records(conds, period)
 
-        print("Found {} transactions.".format(len(selected)))
+        print("Found {} transactions.".format(len(recs)))
 
-        for rec in selected:
+        for rec in recs:
             print("> {}".format(rec))
 
     def do_l(self, args):
@@ -93,12 +81,17 @@ class DiaryShell(cmd.Cmd):
 
     def do_count(self, args):
         'count all transaction in a specific period'
-        prefix = args
-        if prefix == 'all':
-            prefix = ''
+        args = syntax.Tokenizer().tokenize(args)
 
-        records = self.db.select_period(prefix)
-        print("Found {} transactions.".format(len(records)))
+        ok, res = syntax.Parser().parse_line('list', *args)
+        if not ok:
+            print("Syntax Error:", res)
+            return
+
+        _, (conds, period) = res
+
+        recs = self.find_records(conds, period)
+        print("Found {} transactions.".format(len(recs)))
 
     def do_c(self, args):
         'count all transaction in a specific period'
@@ -134,6 +127,21 @@ class DiaryShell(cmd.Cmd):
     def do_q(self, args):
         'exit'
         return True
+
+    def find_records(self, conds, period):
+        records = self.db.select_period(period)
+        selected = []
+        for rec in records:
+            rec.category = classifier.classify(rec)
+            ok = True
+            for field, value in conds:
+                if getattr(rec, field) != value:
+                    ok = False
+                    break
+            if ok:
+                selected.append(rec)
+
+        return selected
 
 
 if __name__ == '__main__':
