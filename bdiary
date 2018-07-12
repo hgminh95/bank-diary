@@ -119,9 +119,8 @@ class DiaryShell(cmd.Cmd):
             get sum by year, month
         """
         args = syntax.Tokenizer().tokenize(args)
-        args = ['get'] + args
 
-        ok, res = syntax.Parser().parse_line(args)
+        ok, res = syntax.Parser().parse_line('get', *args)
         if not ok:
             print("Syntax Error:", res)
             return
